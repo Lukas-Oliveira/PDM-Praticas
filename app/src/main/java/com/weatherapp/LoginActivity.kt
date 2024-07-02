@@ -1,6 +1,7 @@
 package com.weatherapp
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -90,6 +91,9 @@ class LoginActivity : ComponentActivity() {
                 Button(
                     onClick = {
                         Toast.makeText(activity, "Login OK", Toast.LENGTH_LONG).show()
+                        activity?.startActivity(
+                            Intent(activity, MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        )
                     },
                     enabled = email.isNotEmpty() && password.isNotEmpty()
                 ) {
