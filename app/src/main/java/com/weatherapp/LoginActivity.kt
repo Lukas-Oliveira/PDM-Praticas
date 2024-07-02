@@ -100,11 +100,19 @@ class LoginActivity : ComponentActivity() {
                     Text("Login")
                 }
                 Button(
+                    onClick = {
+                        activity?.startActivity(
+                            Intent(activity, RegisterActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        )
+                    }
+                ) {
+                    Text("Cadastrar Usuário")
+                }
+                Button(
                     onClick = { email = ""; password = "" }
                 ) {
                     Text("Limpar")
-                }
-            }
+                }            }
         }
     }
 }
