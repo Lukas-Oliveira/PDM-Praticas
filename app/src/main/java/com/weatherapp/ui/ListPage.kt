@@ -32,9 +32,11 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun ListPage(modifier: Modifier = Modifier)
-{
-    val cityList = remember { getCities().toMutableStateList() }
+fun ListPage(
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel
+) {
+    val cityList = viewModel.cities
     var activity = LocalContext.current as? Activity
 
     LazyColumn (
@@ -43,24 +45,13 @@ fun ListPage(modifier: Modifier = Modifier)
         items(cityList) { city ->
             CityItem(
                 city = city,
-                onClose = {
-                    Toast.makeText(activity, "CityItem Closed!", Toast.LENGTH_LONG).show()
-                },
+                onClose = { viewModel.remove(city) },
                 onClick = {
                     Toast.makeText(activity, "CityItem Clicked!", Toast.LENGTH_LONG).show()
                 }
             )
         }
     }
-}
-
-data class City(
-    val name: String,
-    var weather: String
-)
-
-private fun getCities() = List(30) { i ->
-    City(name = "Cidade $i", weather = "Carregando clima...")
 }
 
 @Composable
