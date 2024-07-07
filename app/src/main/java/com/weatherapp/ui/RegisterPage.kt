@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -38,31 +36,29 @@ fun RegisterPage(modifier: Modifier = Modifier)
     Column(
         modifier = Modifier.padding(20.dp)
     ) {
-        OutlinedTextField(
+        DataField(
             value = username,
-            label = { Text(text = "Digite seu Nome") },
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { username = it }
+            onChange = { username = it },
+            label = "Digite seu Nome",
+            modifier = modifier.fillMaxWidth()
         )
-        OutlinedTextField(
+        DataField(
             value = email,
-            label = { Text(text = "Digite o seu e-mail") },
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { email = it }
+            onChange = { email = it },
+            label = "Digite o seu e-mail",
+            modifier = modifier.fillMaxWidth()
         )
-        OutlinedTextField(
+        PasswordField(
             value = password,
-            label = { Text(text = "Digite a senha") },
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { password = it },
-            visualTransformation = PasswordVisualTransformation()
+            onChange = { password = it },
+            label = "Digite a senha",
+            modifier = modifier.fillMaxWidth()
         )
-        OutlinedTextField(
+        PasswordField(
             value = passwordConfirm,
-            label = { Text(text = "Confirme a senha") },
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { passwordConfirm = it },
-            visualTransformation = PasswordVisualTransformation()
+            onChange = { passwordConfirm = it },
+            label = "Confirme a senha",
+            modifier = modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.size(20.dp))

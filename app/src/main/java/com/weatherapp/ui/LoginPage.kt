@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,18 +46,17 @@ fun LoginPage(modifier: Modifier = Modifier)
             fontSize = 24.sp
         )
         Spacer(modifier = Modifier.size(24.dp))
-        OutlinedTextField(
+        DataField(
             value = email,
-            label = { Text(text = "Digite seu e-mail") },
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { email = it }
+            onChange = { email = it },
+            label = "Digite seu e-mail",
+            modifier = modifier.fillMaxWidth()
         )
-        OutlinedTextField(
+        PasswordField(
             value = password,
-            label = { Text(text = "Digite sua senha") },
-            modifier = Modifier.fillMaxWidth(),
-            onValueChange = { password = it },
-            visualTransformation = PasswordVisualTransformation()
+            onChange = { password = it },
+            label = "Digite sua senha",
+            modifier = modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(24.dp))
         Row (
