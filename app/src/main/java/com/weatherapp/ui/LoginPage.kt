@@ -52,6 +52,9 @@ fun LoginPage(modifier: Modifier = Modifier)
             label = "Digite seu e-mail",
             modifier = modifier.fillMaxWidth()
         )
+        Spacer(
+            modifier = Modifier.size(12.dp)
+        )
         PasswordField(
             value = password,
             onChange = { password = it },
@@ -73,6 +76,9 @@ fun LoginPage(modifier: Modifier = Modifier)
             ) {
                 Text(text = "Login")
             }
+            Spacer(
+                modifier = Modifier.size(5.dp)
+            )
             Button(
                 onClick = {
                     activity?.startActivity(
@@ -82,8 +88,12 @@ fun LoginPage(modifier: Modifier = Modifier)
             ) {
                 Text(text = "Cadastrar Usuário")
             }
+            Spacer(
+                modifier = Modifier.size(5.dp)
+            )
             Button(
-                onClick = { email = ""; password = ""; }
+                onClick = { email = ""; password = ""; },
+                enabled = email.isNotEmpty() || password.isNotEmpty()
             ) {
                 Text(text = "Limpar")
             }

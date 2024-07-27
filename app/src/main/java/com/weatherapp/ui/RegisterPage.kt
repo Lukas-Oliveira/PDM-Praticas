@@ -16,10 +16,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -34,13 +36,24 @@ fun RegisterPage(modifier: Modifier = Modifier)
     var activity = LocalContext.current as? Activity
 
     Column(
-        modifier = Modifier.padding(20.dp)
+        modifier = Modifier.padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Text(
+            text = "Cadastrar Usuário",
+            fontSize = 24.sp
+        )
+        Spacer(modifier = Modifier.size(20.dp))
+
         DataField(
             value = username,
             onChange = { username = it },
             label = "Digite seu Nome",
             modifier = modifier.fillMaxWidth()
+        )
+        Spacer(
+            modifier = Modifier.size(12.dp)
         )
         DataField(
             value = email,
@@ -48,11 +61,17 @@ fun RegisterPage(modifier: Modifier = Modifier)
             label = "Digite o seu e-mail",
             modifier = modifier.fillMaxWidth()
         )
+        Spacer(
+            modifier = Modifier.size(12.dp)
+        )
         PasswordField(
             value = password,
             onChange = { password = it },
             label = "Digite a senha",
             modifier = modifier.fillMaxWidth()
+        )
+        Spacer(
+            modifier = Modifier.size(12.dp)
         )
         PasswordField(
             value = passwordConfirm,
@@ -62,21 +81,39 @@ fun RegisterPage(modifier: Modifier = Modifier)
         )
 
         Spacer(modifier = Modifier.size(20.dp))
-
         Row(
             modifier = Modifier
         ) {
+            Button(onClick = { activity?.finish() }){ Text(text = "Voltar") }
+            Spacer(modifier = Modifier.size(5.dp))
+            
             Button(
                 onClick = {
-                    Toast.makeText(activity, "Registered!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(activity, "Cadastrado!", Toast.LENGTH_LONG).show()
                     activity?.finish()
                 },
                 enabled = username.isNotEmpty() &&
-                        email.isNotEmpty()    &&
-                        password.isNotEmpty() &&
-                        password.equals(passwordConfirm)
+                          email.isNotEmpty()    &&
+                          password.isNotEmpty() &&
+                          password.equals(passwordConfirm)
             ) {
-                Text(text = "Register")
+                Text(text = "Cadastrar")
+            }
+            Spacer(modifier = Modifier.size(5.dp))
+            
+            Button(
+                onClick = {
+                    username = ""
+                    email = ""
+                    password = ""
+                    passwordConfirm = ""
+                },
+                enabled = username.isNotEmpty() ||
+                          email.isNotEmpty()    ||
+                          password.isNotEmpty() ||
+                          passwordConfirm.isNotEmpty()
+            ) {
+                Text(text = "Limpar")
             }
         }
     }
