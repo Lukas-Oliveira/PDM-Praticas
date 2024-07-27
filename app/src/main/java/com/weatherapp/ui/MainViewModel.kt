@@ -2,10 +2,12 @@ package com.weatherapp.ui
 
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.LatLng
 
 data class City(
     val name: String,
-    val weather: String
+    val weather: String,
+    val location: LatLng? = null
 )
 
 fun getCities() = List(30) { i ->
@@ -14,13 +16,15 @@ fun getCities() = List(30) { i ->
 
 class MainViewModel : ViewModel() {
 
-    val cities = getCities().toMutableStateList()
+    private val _cities = getCities().toMutableStateList()
+    val cities: List<City>
+        get() = _cities
 
     fun remove(city: City) {
-        cities.remove(city)
+        _cities.remove(city)
     }
 
-    fun add(city: String) {
-        cities.add(City(city, "Carregando clima..."))
+    fun add(city: String, location: LatLng? = null) {
+        _cities.add(City(city, "Carregando clima...", location))
     }
 }

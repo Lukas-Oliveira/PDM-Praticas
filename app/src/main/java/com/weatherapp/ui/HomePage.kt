@@ -1,6 +1,7 @@
 package com.weatherapp.ui
 
 import android.app.Activity
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +23,11 @@ import com.weatherapp.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
-fun HomePage(modifier: Modifier = Modifier)
-{
+fun HomePage(
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel,
+    context: Context
+) {
     var activity = LocalContext.current as? Activity
 
     Column(
