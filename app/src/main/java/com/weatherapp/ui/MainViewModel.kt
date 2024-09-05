@@ -7,24 +7,21 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-
-data class City(
-    val name: String,
-    val weather: String,
-    val location: LatLng? = null
-)
-
-fun getCities() = List(30) { i ->
-    City(name = "Cidade $i", weather = "Carregando clima...")
-}
+import com.weatherapp.model.City
+import com.weatherapp.model.User
+import com.weatherapp.model.getCities
 
 class MainViewModel : ViewModel() {
 
+    private val _user = mutableStateOf(User("", ""))
     private val _cities = getCities().toMutableStateList()
-
     private var _loggedIn = mutableStateOf(false)
+
     val loggedIn: Boolean
         get() = _loggedIn.value
+
+    val user: User
+        get() = _user.value
 
     private val listener = FirebaseAuth.AuthStateListener {
         firebaseAuth ->
