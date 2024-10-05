@@ -94,8 +94,13 @@ fun RegisterPage(modifier: Modifier = Modifier)
                     Firebase.auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(activity!!) { task ->
                             if (task.isSuccessful) {
+
+                                username = ""
+                                email = ""
+                                password = ""
+                                passwordConfirm = ""
+
                                 Toast.makeText(activity, "Cadastrado com Sucesso!",Toast.LENGTH_LONG).show()
-                                activity.finish()
                             } else {
                                 Toast.makeText(activity, "O Cadastro Falhou!", Toast.LENGTH_LONG).show()
                             }
