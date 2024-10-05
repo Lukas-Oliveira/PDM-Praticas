@@ -56,6 +56,10 @@ class MainActivity : ComponentActivity() {
                 onResult = {}
             )
 
+            if (!viewModel.loggedIn) {
+                this.finish()
+            }
+
             WeatherAppTheme {
 
                 if (showDialog) {
@@ -74,10 +78,7 @@ class MainActivity : ComponentActivity() {
                             title = { Text(text = "Bem vindo/a!") },
                             actions = {
                                 IconButton(
-                                    onClick = {
-                                        Firebase.auth.signOut()
-                                        finish()
-                                    }
+                                    onClick = { Firebase.auth.signOut() }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.ExitToApp,
