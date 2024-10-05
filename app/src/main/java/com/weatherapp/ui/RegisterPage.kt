@@ -22,6 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -89,8 +91,15 @@ fun RegisterPage(modifier: Modifier = Modifier)
             
             Button(
                 onClick = {
-                    Toast.makeText(activity, "Cadastrado!", Toast.LENGTH_LONG).show()
-                    activity?.finish()
+                    Firebase.auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(activity!!) { task ->
+                            if (task.isSuccessful) {
+                                Toast.makeText(activity, "Cadastrado com Sucesso!",Toast.LENGTH_LONG).show()
+                                activity.finish()
+                            } else {
+                                Toast.makeText(activity, "O Cadastro Falhou!", Toast.LENGTH_LONG).show()
+                            }
+                        }
                 },
                 enabled = username.isNotEmpty() &&
                           email.isNotEmpty()    &&
