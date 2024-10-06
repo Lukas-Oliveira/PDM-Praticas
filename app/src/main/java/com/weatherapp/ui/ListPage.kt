@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.weatherapp.db.fb.FBDatabase
 import com.weatherapp.model.City
+import com.weatherapp.repo.Repository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +43,7 @@ fun ListPage(
     val cityList = viewModel.cities
     var activity = LocalContext.current as? Activity
 
-    val firebaseDatabase = remember { FBDatabase(viewModel) }
+    val repository = remember { Repository(viewModel) }
 
     Log.v("cityList", cityList.toString())
 
@@ -54,8 +55,7 @@ fun ListPage(
             CityItem(
                 city = city,
                 onClose = {
-                    // viewModel.remove(city)
-                    firebaseDatabase.remove(city)
+                    repository.remove(city)
                 },
                 onClick = {
                     Toast.makeText(activity, "CityItem Clicked!", Toast.LENGTH_LONG).show()
@@ -92,7 +92,7 @@ fun CityItem(
             )
             Text(
                 modifier = Modifier,
-                text = city.weather,
+                text = city.weather + "",
                 fontSize = 16.sp
             )
         }

@@ -31,6 +31,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.weatherapp.db.fb.FBDatabase
 import com.weatherapp.model.City
+import com.weatherapp.repo.Repository
 import com.weatherapp.ui.CityDialog
 import com.weatherapp.ui.MainViewModel
 import com.weatherapp.ui.nav.BottomNavBar
@@ -58,7 +59,7 @@ class MainActivity : ComponentActivity() {
                 onResult = {}
             )
 
-            val firebaseDatabase = remember { FBDatabase(viewModel) }
+            val repository = remember { Repository(viewModel) }
 
             if (!viewModel.loggedIn) {
                 this.finish()
@@ -71,8 +72,7 @@ class MainActivity : ComponentActivity() {
                         onDismiss = { showDialog = false },
                         onConfirm = { city ->
                             if (city.isNotBlank()) {
-                                // viewModel.add(city)
-                                firebaseDatabase.add(City(city, "Carregando..."))
+                                repository.addCity(name = city)
                             }
                             showDialog = false
                         }

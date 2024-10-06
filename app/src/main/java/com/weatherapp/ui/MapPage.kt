@@ -23,6 +23,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.weatherapp.db.fb.FBDatabase
 import com.weatherapp.model.City
+import com.weatherapp.repo.Repository
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,15 +34,9 @@ fun MapPage(
     context: Context
 ) {
     var activity = LocalContext.current as? Activity
-
-    val recife = LatLng(-8.05, -34.9)
-    val caruaru = LatLng(-8.27, -35.98)
-    val joaoPessoa = LatLng(-7.12, -34.84)
-
-    val firebaseDatabase = remember { FBDatabase(viewModel) }
+    val repository = remember { Repository(viewModel) }
 
     val camPosState = rememberCameraPositionState()
-
     val hasLocationPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -51,31 +46,12 @@ fun MapPage(
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         onMapClick = {
-            // viewModel.add("Nova Cidade", location = it)
-            firebaseDatabase.add(City("Nova Cidade - ${UUID.randomUUID().toString()}", "Carregando..."))
+            repository.addCity(lat = it.latitude, long = it.longitude)
         },
         cameraPositionState = camPosState,
         properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
         uiSettings = MapUiSettings(myLocationButtonEnabled = true)
     ) {
-        Marker(
-            state = MarkerState(position = recife),
-            title = "Recife",
-            snippet = "Marcador em Recife",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-        )
-        Marker(
-            state = MarkerState(position = caruaru),
-            title = "Caruaru",
-            snippet = "Marcador em Caruaru",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
-        )
-        Marker(
-            state = MarkerState(position = joaoPessoa),
-            title = "João Pessoa",
-            snippet = "Marcador em João Pessoa",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
-        )
 
         viewModel.cities.forEach {
             if (it.location != null) {
