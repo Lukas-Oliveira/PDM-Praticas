@@ -21,6 +21,9 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.weatherapp.db.fb.FBDatabase
+import com.weatherapp.model.City
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +38,8 @@ fun MapPage(
     val caruaru = LatLng(-8.27, -35.98)
     val joaoPessoa = LatLng(-7.12, -34.84)
 
+    val firebaseDatabase = remember { FBDatabase(viewModel) }
+
     val camPosState = rememberCameraPositionState()
 
     val hasLocationPermission by remember {
@@ -45,7 +50,10 @@ fun MapPage(
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
-        onMapClick = { viewModel.add("Nova Cidade", location = it) },
+        onMapClick = {
+            // viewModel.add("Nova Cidade", location = it)
+            firebaseDatabase.add(City("Nova Cidade - ${UUID.randomUUID().toString()}", "Carregando..."))
+        },
         cameraPositionState = camPosState,
         properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
         uiSettings = MapUiSettings(myLocationButtonEnabled = true)

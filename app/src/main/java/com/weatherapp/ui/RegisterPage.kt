@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -24,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.weatherapp.db.fb.FBDatabase
+import com.weatherapp.model.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -36,6 +39,8 @@ fun RegisterPage(modifier: Modifier = Modifier)
     var passwordConfirm by rememberSaveable { mutableStateOf(value = "") }
 
     var activity = LocalContext.current as? Activity
+
+    val firebaseDatabase = remember { FBDatabase() }
 
     Column(
         modifier = Modifier.padding(20.dp),
@@ -94,6 +99,8 @@ fun RegisterPage(modifier: Modifier = Modifier)
                     Firebase.auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(activity!!) { task ->
                             if (task.isSuccessful) {
+
+                                firebaseDatabase.register(User(username, email))
 
                                 username = ""
                                 email = ""

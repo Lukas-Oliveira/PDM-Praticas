@@ -29,6 +29,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.weatherapp.db.fb.FBDatabase
+import com.weatherapp.model.City
 import com.weatherapp.ui.CityDialog
 import com.weatherapp.ui.MainViewModel
 import com.weatherapp.ui.nav.BottomNavBar
@@ -56,6 +58,8 @@ class MainActivity : ComponentActivity() {
                 onResult = {}
             )
 
+            val firebaseDatabase = remember { FBDatabase(viewModel) }
+
             if (!viewModel.loggedIn) {
                 this.finish()
             }
@@ -66,7 +70,10 @@ class MainActivity : ComponentActivity() {
                     CityDialog(
                         onDismiss = { showDialog = false },
                         onConfirm = { city ->
-                            if (city.isNotBlank()) viewModel.add(city)
+                            if (city.isNotBlank()) {
+                                // viewModel.add(city)
+                                firebaseDatabase.add(City(city, "Carregando..."))
+                            }
                             showDialog = false
                         }
                     )
@@ -75,7 +82,9 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(text = "Bem vindo/a ${viewModel.user.name}!") },
+                            title = {
+                                Text(text = "Bem vindo/a ${viewModel.user.name}!")
+                            },
                             actions = {
                                 IconButton(
                                     onClick = { Firebase.auth.signOut() }
