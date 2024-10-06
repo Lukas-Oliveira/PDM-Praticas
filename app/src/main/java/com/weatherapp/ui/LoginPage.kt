@@ -71,6 +71,10 @@ fun LoginPage(modifier: Modifier = Modifier)
                     Firebase.auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(activity!!) { task ->
                             if (task.isSuccessful) {
+
+                                email = ""
+                                password = ""
+
                                 Toast.makeText(activity, "Login OK!", Toast.LENGTH_LONG).show()
                             } else {
                                 Toast.makeText(activity, "Login Falhou!", Toast.LENGTH_LONG).show()
