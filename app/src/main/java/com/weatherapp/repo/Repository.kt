@@ -1,6 +1,7 @@
 package com.weatherapp.repo
 
 import com.google.android.gms.maps.model.LatLng
+import com.weatherapp.api.WeatherService
 import com.weatherapp.db.fb.FBDatabase
 import com.weatherapp.model.City
 import com.weatherapp.model.User
@@ -8,6 +9,7 @@ import com.weatherapp.model.User
 class Repository(private var listener: Listener): FBDatabase.Listener {
 
     private var firebaseDatabase = FBDatabase(this)
+    private var weatherService = WeatherService()
 
     interface Listener {
         fun onUserLoaded(user: User)
@@ -16,11 +18,15 @@ class Repository(private var listener: Listener): FBDatabase.Listener {
     }
 
     fun addCity(name: String) {
-        firebaseDatabase.add(City(name, LatLng(0.0, 0.0)))
+        weatherService.getLocation(name) { lat, lng ->
+            firebaseDatabase.add(City(name = name, weather = "loading...", location = LatLng(lat ?: 0.0, lng ?: 0.0)))
+        }
     }
 
-    fun addCity(lat: Double, long: Double) {
-        firebaseDatabase.add(City("Cidade@$lat:$long", LatLng(lat, long)))
+    fun addCity(lat: Double, lng: Double) {
+        weatherService.getName(lat, lng) { name ->
+            firebaseDatabase.add(City(name = name ?: "NOT FOUND", location = LatLng(lat, lng)))
+        }
     }
 
     fun remove(city: City) {
