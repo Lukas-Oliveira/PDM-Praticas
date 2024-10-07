@@ -52,6 +52,11 @@ fun ListPage(
         modifier = Modifier.fillMaxSize().padding(8.dp)
     ) {
         items(cityList) { city ->
+
+            if (city.weather == null) {
+                repository.loadWeather(city)
+            }
+
             CityItem(
                 city = city,
                 onClose = {
@@ -92,7 +97,7 @@ fun CityItem(
             )
             Text(
                 modifier = Modifier,
-                text = city.weather + "",
+                text = city.weather?.desc ?: "Carregando...",
                 fontSize = 16.sp
             )
         }
