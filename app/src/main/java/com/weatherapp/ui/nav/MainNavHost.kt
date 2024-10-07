@@ -23,7 +23,7 @@ fun MainNavHost(
             HomePage(viewModel = viewModel, context = context)
         }
         composable(route = BottomNavItem.ListPage.route) {
-            ListPage(viewModel = viewModel, context = context)
+            ListPage(viewModel = viewModel, context = context, navCtrl = navController)
         }
         composable(route = BottomNavItem.MapPage.route) {
             MapPage(viewModel = viewModel, context = context)

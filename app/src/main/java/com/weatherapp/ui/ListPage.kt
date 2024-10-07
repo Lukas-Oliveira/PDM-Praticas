@@ -29,16 +29,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.weatherapp.db.fb.FBDatabase
 import com.weatherapp.model.City
 import com.weatherapp.repo.Repository
+import com.weatherapp.ui.nav.BottomNavItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListPage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
-    context: Context
+    context: Context,
+    navCtrl: NavHostController
 ) {
     val cityList = viewModel.cities
     var activity = LocalContext.current as? Activity
@@ -63,7 +66,15 @@ fun ListPage(
                     repository.remove(city)
                 },
                 onClick = {
-                    Toast.makeText(activity, "CityItem Clicked!", Toast.LENGTH_LONG).show()
+                    viewModel.city = city
+                    repository.loadForecast(city)
+                    navCtrl.navigate(BottomNavItem.HomePage.route) {
+                        navCtrl.graph.startDestinationRoute?.let {
+                            popUpTo(it) { saveState = true }
+                            restoreState = true
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
