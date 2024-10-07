@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.scale
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -54,13 +55,21 @@ fun MapPage(
     ) {
 
         viewModel.cities.forEach {
-            if (it.location != null) {
+            city ->
+                var marker = BitmapDescriptorFactory.defaultMarker()
+
+                if (city.weather == null)               repository.loadWeather(city)
+                else if (city.weather!!.bitmap == null) repository.loadBitmap(city)
+                else {
+                    marker = BitmapDescriptorFactory.fromBitmap(city.weather!!.bitmap!!.scale(200, 200))
+                }
+
                 Marker(
-                    state = MarkerState(position = it.location!!),
-                    title = it.name,
-                    snippet = it.weather?.desc ?: "Carregando..."
+                    state = MarkerState(position = city.location!!),
+                    icon = marker,
+                    title = city.name,
+                    snippet = city.weather?.desc ?: "carregando..."
                 )
-            }
         }
     }
 }

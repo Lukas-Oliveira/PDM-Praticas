@@ -1,11 +1,16 @@
 package com.weatherapp.api
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.util.Log
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.Exception
 
 class WeatherService {
     private var weatherAPI: WeatherServiceAPI
@@ -36,21 +41,32 @@ class WeatherService {
         enqueue(call) { onResponse.invoke(it) }
     }
 
+    fun getBitmap(imgUrl: String, onResponse: (Bitmap?) -> Unit)
+    {
+        Picasso.get().load(imgUrl).into(object: Target {
+
+            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?)
+            {
+                onResponse.invoke(bitmap)
+            }
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?)
+            {}
+
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?)
+            {
+                Log.w("WeatherApp WARNING", ""+ e?.message)
+                e?.printStackTrace()
+            }
+        })
+    }
+
     private fun search(query: String, onResponse: (APILocation?) -> Unit) {
         val call: Call<List<APILocation>?> = weatherAPI.search(query)
 
-        enqueue(call) { onResponse.invoke(it?.get(0)) }
-        /*
-        call.enqueue(object: Callback<List<APILocation>?> {
-            override fun onResponse(call: Call<List<APILocation>?>, response: Response<List<APILocation>?>) {
-                onResponse(response.body()?.get(0))
-            }
-            override fun onFailure(call: Call<List<APILocation>?>, t: Throwable) {
-                Log.w("WeatherApp WARNING", "" + t.message)
-                onResponse(null)
-            }
-        })
-        */
+        enqueue(call) {
+            if (it != null)
+                onResponse.invoke(it[0])
+        }
     }
 
     private fun <T> enqueue(call: Call<T?>, onResponse: ((T?) -> Unit)? = null) {
