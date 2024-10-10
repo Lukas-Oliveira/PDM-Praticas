@@ -15,17 +15,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.weatherapp.db.fb.FBDatabase
-import com.weatherapp.model.City
 import com.weatherapp.repo.Repository
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
