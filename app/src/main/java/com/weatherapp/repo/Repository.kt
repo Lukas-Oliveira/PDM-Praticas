@@ -15,9 +15,10 @@ class Repository(private var listener: Listener): FBDatabase.Listener {
 
     interface Listener {
         fun onUserLoaded(user: User)
+        fun onUserSignOut()
         fun onCityAdded(city: City)
-        fun onCityRemoved(city: City)
         fun onCityUpdated(city: City)
+        fun onCityRemoved(city: City)
     }
 
     fun addCity(name: String) {
@@ -84,5 +85,16 @@ class Repository(private var listener: Listener): FBDatabase.Listener {
 
     override fun onCityRemoved(city: City) {
         listener.onCityRemoved(city)
+    }
+
+    override fun onUserSignOut()
+    {}
+
+    override fun onCityUpdated(city: City) {
+        listener.onCityUpdated(city)
+    }
+
+    fun update(city: City) {
+        firebaseDatabase.update(city)
     }
 }

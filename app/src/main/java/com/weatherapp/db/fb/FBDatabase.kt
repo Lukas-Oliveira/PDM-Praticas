@@ -16,7 +16,9 @@ class FBDatabase(private val listener: Listener? = null) {
 
     interface Listener {
         fun onUserLoaded(user: User)
+        fun onUserSignOut()
         fun onCityAdded(city: City)
+        fun onCityUpdated(city: City)
         fun onCityRemoved(city: City)
     }
 
@@ -25,6 +27,7 @@ class FBDatabase(private val listener: Listener? = null) {
 
             if (auth.currentUser == null) {
                 citiesListReg?.remove()
+                listener?.onUserSignOut()
                 return@addAuthStateListener
             }
 
@@ -41,6 +44,12 @@ class FBDatabase(private val listener: Listener? = null) {
 
                 snapshots?.documentChanges?.forEach { change ->
                     val fbCity = change.document.toObject(FBCity::class.java)
+
+                    when (change.type) {
+                        DocumentChange.Type.ADDED -> listener?.onCityAdded(fbCity.toCity())
+                        DocumentChange.Type.MODIFIED -> listener?.onCityUpdated(fbCity.toCity())
+                        DocumentChange.Type.REMOVED -> listener?.onCityRemoved(fbCity.toCity())
+                    }
 
                     if (change.type == DocumentChange.Type.ADDED)
                     {
@@ -77,5 +86,20 @@ class FBDatabase(private val listener: Listener? = null) {
 
         val uid = auth.currentUser!!.uid
         db.collection("users").document(uid).collection("cities").document(city.name).delete()
+    }
+
+    fun update(city: City) {
+        if (auth.currentUser == null)
+            throw RuntimeException("Not logged in!!")
+
+        val uid = auth.currentUser!!.uid
+        val fbCity = city.toFBCity()
+        val changes = mapOf(
+            "lat" to fbCity.lat,
+            "lng" to fbCity.lng,
+            "monitored" to fbCity.monitored
+        )
+
+        db.collection("users").document(uid).collection("cities").document(fbCity.name!!).update(changes)
     }
 }

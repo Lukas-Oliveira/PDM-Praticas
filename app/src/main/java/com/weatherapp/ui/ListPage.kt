@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,7 +72,8 @@ fun ListPage(
                         }
                         launchSingleTop = true
                     }
-                }
+                },
+                repository = repository
             )
         }
     }
@@ -81,8 +84,11 @@ fun CityItem(
     city: City,
     onClick: () -> Unit,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    repository: Repository
 ) {
+    val icon = if (city.isMonitored!!) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -90,6 +96,15 @@ fun CityItem(
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = "Monitor?",
+            modifier = Modifier
+                        .size(32.dp)
+                        .clickable(enabled = true) {
+                            repository.update(city.copy(isMonitored = !city.isMonitored!!))
+                        }
+        )
         AsyncImage(
             model = city.weather?.imgUrl,
             modifier = Modifier.size(75.dp),
