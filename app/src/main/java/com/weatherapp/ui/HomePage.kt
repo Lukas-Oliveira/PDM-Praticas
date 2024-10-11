@@ -68,13 +68,15 @@ fun HomePage(
             }
         }
 
-        if (viewModel.city == null || viewModel.city!!.forecast == null)
-            return
-
-        LazyColumn {
-            items(viewModel.city?.forecast ?: ArrayList<Forecast>()) {
-                forecast ->
-                    ForecastItem(forecast, onClick = {}, modifier = modifier)
+        viewModel.city?.forecast?.let { forecasts ->
+            LazyColumn {
+                items(forecasts) { forecast ->
+                    ForecastItem(
+                        forecast = forecast,
+                        onClick = {},
+                        modifier = modifier
+                    )
+                }
             }
         }
     }

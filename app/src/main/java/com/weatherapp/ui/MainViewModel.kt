@@ -11,7 +11,9 @@ class MainViewModel : ViewModelBase(), Repository.Listener {
     private var _city = mutableStateOf<City?>(null)
     var city: City?
         get() = _city.value
-        set(tmp) { _city = mutableStateOf(tmp?.copy()) }
+        set(tmp) {
+            _city.value = tmp?.copy()
+        }
 
     private val _user = mutableStateOf(User("", ""))
     val user: User
