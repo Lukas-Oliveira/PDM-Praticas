@@ -10,5 +10,5 @@ data class City (
     var forecast: List<Forecast>? = null,
     val img_url: String? = null,
     val bitmap: Bitmap? = null,
-    var isMonitored: Boolean? = false
+    var isMonitored: Boolean = false
 )

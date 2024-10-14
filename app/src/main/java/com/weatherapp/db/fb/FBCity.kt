@@ -7,7 +7,7 @@ class FBCity {
     var name: String? = null
     var lat: Double? = null
     var lng: Double? = null
-    var monitored: Boolean? = false
+    var monitored: Boolean = false
 
     fun toCity(): City {
         val latlng = LatLng(lat ?: 0.0, lng ?: 0.0)
