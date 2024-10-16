@@ -3,8 +3,11 @@ package com.weatherapp.api
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
+import com.google.android.gms.maps.model.LatLng
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,61 +26,33 @@ class WeatherService {
         weatherAPI = retrofitAPI.create(WeatherServiceAPI::class.java)
     }
 
-    fun getName(lat: Double, lng: Double, onResponse: (String?) -> Unit) {
-        search("$lat,$lng") { loc -> onResponse(loc?.name) }
+    suspend fun getName(lat: Double, lng: Double): String? = withContext(Dispatchers.IO) {
+        search("$lat,$lng")?.name
     }
 
-    fun getLocation(name: String, onResponse: (lat: Double?, long: Double?) -> Unit) {
-        search(name) { loc -> onResponse(loc?.lat, loc?.lon) }
+    suspend fun getLocation(name: String): LatLng? = withContext(Dispatchers.IO) {
+        val response = search(name)
+        LatLng(response?.lat ?: 0.0, response?.lon ?: 0.0)
     }
 
-    fun getCurrentWeather(name: String, onResponse: (APICurrentWeather?) -> Unit) {
+    suspend fun getCurrentWeather(name: String): APICurrentWeather? = withContext(Dispatchers.IO) {
         val call: Call<APICurrentWeather?> = weatherAPI.currentWeather(name)
-        enqueue(call) { onResponse.invoke(it) }
+        call.execute().body()
     }
 
-    fun getForecast(name: String, onResponse: (APIWeatherForecast?) -> Unit) {
+    suspend fun getForecast(name: String): APIWeatherForecast? = withContext(Dispatchers.IO) {
         val call: Call<APIWeatherForecast?> = weatherAPI.forecast(name)
-        enqueue(call) { onResponse.invoke(it) }
+        call.execute().body()
     }
 
-    fun getBitmap(imgUrl: String, onResponse: (Bitmap?) -> Unit)
-    {
-        Picasso.get().load(imgUrl).into(object: Target {
-
-            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?)
-            {
-                onResponse.invoke(bitmap)
-            }
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?)
-            {}
-
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?)
-            {
-                Log.w("WeatherApp WARNING", ""+ e?.message)
-                e?.printStackTrace()
-            }
-        })
+    suspend fun getBitmap(imgUrl: String): Bitmap? = withContext(Dispatchers.IO) {
+        Picasso.get().load(imgUrl).get()
     }
 
-    private fun search(query: String, onResponse: (APILocation?) -> Unit) {
+    private fun search(query: String): APILocation? {
         val call: Call<List<APILocation>?> = weatherAPI.search(query)
+        val apiLoc = call.execute().body()
 
-        enqueue(call) {
-            if (it != null)
-                onResponse.invoke(it[0])
-        }
-    }
-
-    private fun <T> enqueue(call: Call<T?>, onResponse: ((T?) -> Unit)? = null) {
-        call.enqueue(object: Callback<T?> {
-            override fun onResponse(call: Call<T?>, response: Response<T?>) {
-                val obj: T? = response.body()
-                onResponse?.invoke(obj)
-            }
-            override fun onFailure(call: Call<T?>, t: Throwable) {
-                Log.w("WeatherApp WARNING", "" + t.message)
-            }
-        })
+        return if (!apiLoc.isNullOrEmpty()) apiLoc[0] else null
     }
 }
