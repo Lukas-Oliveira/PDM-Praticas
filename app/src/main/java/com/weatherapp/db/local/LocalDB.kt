@@ -3,9 +3,8 @@ package com.weatherapp.db.local
 import android.content.Context
 import androidx.room.Room
 import com.weatherapp.model.City
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LocalDB(context: Context, databaseName: String) {
 
@@ -15,24 +14,17 @@ class LocalDB(context: Context, databaseName: String) {
         name = databaseName
     ).build()
 
-    private var scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+    val cities = roomDB.localCityDao().getCities()
 
-    fun insert(city: City) = scope.launch {
+    suspend fun insert(city: City) = withContext(Dispatchers.IO) {
         roomDB.localCityDao().upsert(city.toLocalCity())
     }
 
-    fun update(city: City) = scope.launch {
+    suspend fun update(city: City) = withContext(Dispatchers.IO) {
         roomDB.localCityDao().upsert(city.toLocalCity())
     }
 
-    fun delete(city: City) = scope.launch {
+    suspend fun delete(city: City) = withContext(Dispatchers.IO) {
         roomDB.localCityDao().delete(city.toLocalCity())
-    }
-
-    fun getCities(doSomething: (City) -> Unit) = scope.launch {
-        roomDB.localCityDao().getCities().collect { list ->
-            val mappedList = list.map{ it.toCity() }
-            mappedList.forEach{ doSomething(it) }
-        }
     }
 }
