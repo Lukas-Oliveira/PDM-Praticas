@@ -42,13 +42,12 @@ fun ListPage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
     context: Context,
-    navCtrl: NavHostController
+    navCtrl: NavHostController,
+    repository: Repository
 ) {
-    var activity   = LocalContext.current as? Activity
     val cityList   = viewModel.cities
-    val repository = remember { Repository(viewModel) }
-
-    Log.v("cityList", cityList.toString())
+    // Log.v("cityList", cityList.toString())
+    Log.v("Lista de Cidades", cityList.map { it.name }.toString())
 
     LazyColumn (
         modifier = Modifier.fillMaxSize().padding(8.dp)
@@ -87,7 +86,7 @@ fun CityItem(
     modifier: Modifier = Modifier,
     repository: Repository
 ) {
-    val icon = if (city.isMonitored!!) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder
+    val icon = if (city.isMonitored) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder
 
     Row(
         modifier = modifier
@@ -102,7 +101,7 @@ fun CityItem(
             modifier = Modifier
                         .size(32.dp)
                         .clickable(enabled = true) {
-                            repository.update(city.copy(isMonitored = !city.isMonitored!!))
+                            repository.update(city.copy(isMonitored = !city.isMonitored))
                         }
         )
         AsyncImage(

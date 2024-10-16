@@ -18,21 +18,21 @@ class LocalDB(context: Context, databaseName: String) {
     private var scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     fun insert(city: City) = scope.launch {
-        roomDB.favCityDao().upsert(city.toLocalCity())
+        roomDB.localCityDao().upsert(city.toLocalCity())
     }
 
     fun update(city: City) = scope.launch {
-        roomDB.favCityDao().upsert(city.toLocalCity())
+        roomDB.localCityDao().upsert(city.toLocalCity())
     }
 
     fun delete(city: City) = scope.launch {
-        roomDB.favCityDao().delete(city.toLocalCity())
+        roomDB.localCityDao().delete(city.toLocalCity())
     }
 
     fun getCities(doSomething: (City) -> Unit) = scope.launch {
-        roomDB.favCityDao().getCities().collect { list ->
-            val mappedList = list.map { it.toCity() }
-            mappedList.forEach { doSomething(it) }
+        roomDB.localCityDao().getCities().collect { list ->
+            val mappedList = list.map{ it.toCity() }
+            mappedList.forEach{ doSomething(it) }
         }
     }
 }

@@ -1,17 +1,21 @@
 package com.weatherapp.repo
 
+import android.content.Context
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.weatherapp.api.WeatherService
 import com.weatherapp.db.fb.FBDatabase
+import com.weatherapp.db.local.LocalDB
 import com.weatherapp.model.City
 import com.weatherapp.model.Forecast
 import com.weatherapp.model.User
 import com.weatherapp.model.Weather
 
-class Repository(private var listener: Listener): FBDatabase.Listener {
+class Repository(context: Context, private var listener: Listener): FBDatabase.Listener {
 
     private var firebaseDatabase = FBDatabase(this)
     private var weatherService = WeatherService()
+    private var localDB = LocalDB(context, databaseName = "local.db")
 
     interface Listener {
         fun onUserLoaded(user: User)
@@ -21,19 +25,29 @@ class Repository(private var listener: Listener): FBDatabase.Listener {
         fun onCityRemoved(city: City)
     }
 
+    init {
+        // localDB.getCities { firebaseDatabase.add(it) }
+        Log.v("Repository init", "Init executed")
+    }
+
     fun addCity(name: String) {
         weatherService.getLocation(name) { lat, lng ->
-            firebaseDatabase.add(City(name = name, location = LatLng(lat ?: 0.0, lng ?: 0.0)))
+            val city = City(name = name, location = LatLng(lat ?: 0.0, lng ?: 0.0))
+            localDB.insert(city)
+            firebaseDatabase.add(city)
         }
     }
 
     fun addCity(lat: Double, lng: Double) {
         weatherService.getName(lat, lng) { name ->
-            firebaseDatabase.add(City(name = name ?: "NOT FOUND", location = LatLng(lat, lng)))
+            val city = City(name = name ?: "NOT_FOUND", location = LatLng(lat, lng))
+            localDB.insert(city)
+            firebaseDatabase.add(city)
         }
     }
 
     fun remove(city: City) {
+        localDB.delete(city)
         firebaseDatabase.remove(city)
     }
 
@@ -76,6 +90,8 @@ class Repository(private var listener: Listener): FBDatabase.Listener {
     }
 
     override fun onUserLoaded(user: User) {
+        Log.v("Repository - onUserLoaded", "Executando função 'onUserLoaded'")
+        // localDB.getCities { localDB.insert(it) }
         listener.onUserLoaded(user)
     }
 
@@ -88,13 +104,17 @@ class Repository(private var listener: Listener): FBDatabase.Listener {
     }
 
     override fun onUserSignOut()
-    {}
+    {
+        // localDB.getCities { localDB.delete(it) }
+        listener.onUserSignOut()
+    }
 
     override fun onCityUpdated(city: City) {
         listener.onCityUpdated(city)
     }
 
     fun update(city: City) {
+        localDB.update(city)
         firebaseDatabase.update(city)
     }
 }

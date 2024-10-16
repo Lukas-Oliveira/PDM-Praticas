@@ -34,15 +34,13 @@ import com.weatherapp.repo.Repository
 import java.util.ArrayList
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
 @Composable
 fun HomePage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
-    context: Context
+    context: Context,
+    repository: Repository
 ) {
-    var activity = LocalContext.current as? Activity
-    val repository = remember { Repository(viewModel) }
     val icon = if (viewModel.city != null && viewModel.city?.isMonitored!!) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder
 
     Column {

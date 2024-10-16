@@ -49,18 +49,21 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
+            if (!viewModel.loggedIn) {
+                this.finish()
+            }
+
             val navController = rememberNavController()
+            val context = LocalContext.current
+            val repository = remember { Repository(context, viewModel) }
             var showDialog by remember { mutableStateOf(value = false) }
 
-            val context = LocalContext.current
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton = currentRoute.value?.destination?.route != BottomNavItem.MapPage.route
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = {}
             )
-
-            val repository = remember { Repository(viewModel) }
 
             DisposableEffect(Unit) {
                 val listener = Consumer<Intent> { intent ->
@@ -76,10 +79,6 @@ class MainActivity : ComponentActivity() {
 
                 addOnNewIntentListener(listener)
                 onDispose { removeOnNewIntentListener(listener) }
-            }
-
-            if (!viewModel.loggedIn) {
-                this.finish()
             }
 
             WeatherAppTheme {
@@ -104,7 +103,10 @@ class MainActivity : ComponentActivity() {
                             },
                             actions = {
                                 IconButton(
-                                    onClick = { Firebase.auth.signOut() }
+                                    onClick = {
+                                        Firebase.auth.signOut()
+                                        this@MainActivity.finish()
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.ExitToApp,
@@ -132,7 +134,8 @@ class MainActivity : ComponentActivity() {
                             MainNavHost(
                                 navController = navController,
                                 viewModel = viewModel,
-                                context = context
+                                context = context,
+                                repository = repository
                             )
                         }
                 }

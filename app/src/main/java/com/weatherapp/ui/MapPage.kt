@@ -28,11 +28,9 @@ import com.weatherapp.repo.Repository
 fun MapPage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel,
-    context: Context
+    context: Context,
+    repository: Repository
 ) {
-    var activity = LocalContext.current as? Activity
-    val repository = remember { Repository(viewModel) }
-
     val camPosState = rememberCameraPositionState()
     val hasLocationPermission by remember {
         mutableStateOf(

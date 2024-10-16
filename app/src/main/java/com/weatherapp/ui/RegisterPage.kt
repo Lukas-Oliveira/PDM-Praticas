@@ -39,7 +39,6 @@ fun RegisterPage(modifier: Modifier = Modifier)
     var passwordConfirm by rememberSaveable { mutableStateOf(value = "") }
 
     var activity = LocalContext.current as? Activity
-
     val firebaseDatabase = remember { FBDatabase() }
 
     Column(
@@ -101,6 +100,7 @@ fun RegisterPage(modifier: Modifier = Modifier)
                             if (task.isSuccessful) {
 
                                 firebaseDatabase.register(User(username, email))
+                                Firebase.auth.signInWithEmailAndPassword(email, password)
 
                                 username = ""
                                 email = ""

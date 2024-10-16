@@ -29,7 +29,7 @@ fun CityDialog(
     onDismiss: () -> Unit,
     onConfirm: (city: String) -> Unit
 ) {
-    val cityName = remember { mutableStateOf(value = "") }
+    val cityName = remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(shape = RoundedCornerShape(16.dp)) {

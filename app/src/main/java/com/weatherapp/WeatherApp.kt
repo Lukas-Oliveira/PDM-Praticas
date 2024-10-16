@@ -7,7 +7,7 @@ import com.weatherapp.repo.Repository
 class WeatherApp: Application() {
     override fun onCreate() {
         super.onCreate()
-        val monitor = ForecastMonitor(this)
-        val repo = Repository(monitor)
+        val monitor = ForecastMonitor(applicationContext)
+        val repository = Repository(applicationContext, monitor)
     }
 }
