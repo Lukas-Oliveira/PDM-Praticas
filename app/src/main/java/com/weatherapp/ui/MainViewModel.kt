@@ -2,11 +2,21 @@ package com.weatherapp.ui
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.weatherapp.api.WeatherService
+import com.weatherapp.api.toForecast
+import com.weatherapp.api.toWeather
 import com.weatherapp.model.City
 import com.weatherapp.model.User
 import com.weatherapp.repo.Repository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModelBase(), Repository.Listener {
+class MainViewModel(
+    private val repository: Repository,
+    private val weatherService: WeatherService
+): ViewModel() {
 
     private var _city = mutableStateOf<City?>(null)
     var city: City?
@@ -20,33 +30,46 @@ class MainViewModel : ViewModelBase(), Repository.Listener {
         get() = _user.value
 
     private val _cities = mutableStateMapOf<String, City>()
-    val cities: List<City>
-        get() = _cities.values.toList()
+    val cities: Map<String, City>
+        get() = _cities.toMap()
 
-    override fun onUserLoaded(user: User) {
-        _user.value = user
-    }
+    init {
+        viewModelScope.launch(Dispatchers.Main) {
+            repository.user.collect { user ->
+                _user.value = user.copy()
+            }
+        }
 
-    override fun onCityAdded(city: City) {
-        _cities[city.name] = city
-    }
+        viewModelScope.launch(Dispatchers.Main) {
+            repository.cities.collect { list ->
+                val names = list.map { it.name }
+                val newCities = list.filter { it.name !in _cities.keys }
+                val oldCities = list.filter { it.name in _cities.keys }
 
-    override fun onCityRemoved(city: City) {
-        _cities.remove(city.name)
-    }
-
-    override fun onCityUpdated(city: City) {
-        _cities.remove(city.name)
-        _cities[city.name] = city.copy()
-
-        if (_city.value?.name == city.name) {
-            _city.value = city.copy(
-                weather  = if (city.weather != null)  city.weather  else _city.value?.weather,
-                forecast = if (city.forecast != null) city.forecast else _city.value?.forecast
-            )
+                _cities.keys.removeIf { it !in names }
+                newCities.forEach { _cities[it.name] = it }
+                oldCities.forEach {
+                    _cities[it.name] = _cities[it.name]!!.copy(isMonitored = it.isMonitored)
+                }
+            }
         }
     }
 
-    override fun onUserSignOut()
-    {}
+    fun loadWeather(city: City) = viewModelScope.launch {
+        city.weather = weatherService.getCurrentWeather(city.name)?.toWeather()
+        _cities.remove(city.name)
+        _cities[city.name] = city.copy()
+    }
+
+    fun loadForecast(city: City) = viewModelScope.launch {
+        city.forecast = weatherService.getForecast(city.name)?.toForecast()
+        _cities.remove(city.name)
+        _cities[city.name] = city.copy()
+    }
+
+    fun loadBitmap(city: City) = viewModelScope.launch {
+        city.bitmap = weatherService.getBitmap(city.img_url!!)
+        _cities.remove(city.name)
+        _cities[city.name] = city.copy()
+    }
 }
