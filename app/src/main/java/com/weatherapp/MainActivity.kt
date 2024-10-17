@@ -26,15 +26,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.util.Consumer
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.weatherapp.api.WeatherService
+import com.weatherapp.db.fb.FBAuth
+import com.weatherapp.db.fb.FBDatabase
+import com.weatherapp.db.local.LocalDB
+import com.weatherapp.monitor.ForecastMonitor
 import com.weatherapp.repo.Repository
 import com.weatherapp.ui.CityDialog
 import com.weatherapp.ui.MainViewModel
+import com.weatherapp.ui.MainViewModelFactory
 import com.weatherapp.ui.nav.BottomNavBar
 import com.weatherapp.ui.nav.BottomNavItem
 import com.weatherapp.ui.nav.MainNavHost
@@ -45,19 +50,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        val viewModel: MainViewModel by viewModels()
+//        val viewModel: MainViewModel by viewModels()
 
         setContent {
 
-            if (!viewModel.loggedIn) {
-                this.finish()
-            }
+            val firebaseAuth = remember { FBAuth() }
+            if (firebaseAuth.currentUser == null)
+                finish()
 
-            val navController = rememberNavController()
-            val context = LocalContext.current
-            val repository = remember { Repository(context, viewModel) }
+            val email = firebaseAuth.currentUser?.email
+            val firebaseDatabase = remember { FBDatabase() }
+            val localDatabase = remember { LocalDB(this, databaseName = "$email.db") }
+            val service = remember { WeatherService() }
+            val repository = remember { Repository(firebaseDatabase, localDatabase, service) }
+            val monitor = remember { ForecastMonitor(this, repository) }
+
             var showDialog by remember { mutableStateOf(value = false) }
-
+            val navController = rememberNavController()
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton = currentRoute.value?.destination?.route != BottomNavItem.MapPage.route
             val launcher = rememberLauncherForActivityResult(
@@ -65,18 +74,15 @@ class MainActivity : ComponentActivity() {
                 onResult = {}
             )
 
+            val viewModel: MainViewModel by viewModels {
+                MainViewModelFactory(repository, service)
+            }
+
             DisposableEffect(Unit) {
                 val listener = Consumer<Intent> { intent ->
                     val name = intent.getStringExtra("city")
-                    val city = viewModel.cities.find { it.name == name }
-                    viewModel.city = city
-
-                    if (city != null) {
-                        repository.loadWeather(city)
-                        repository.loadForecast(city)
-                    }
+                    viewModel.city = name
                 }
-
                 addOnNewIntentListener(listener)
                 onDispose { removeOnNewIntentListener(listener) }
             }
@@ -99,7 +105,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = {
-                                Text(text = "Bem vindo/a ${viewModel.user.name}!")
+                                Text(text = "Bem vindo(a) ${viewModel.user?.name}")
                             },
                             actions = {
                                 IconButton(
@@ -134,7 +140,7 @@ class MainActivity : ComponentActivity() {
                             MainNavHost(
                                 navController = navController,
                                 viewModel = viewModel,
-                                context = context,
+                                context = this@MainActivity,
                                 repository = repository
                             )
                         }

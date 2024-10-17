@@ -1,19 +1,13 @@
 package com.weatherapp.api
 
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.Exception
 
 class WeatherService {
     private var weatherAPI: WeatherServiceAPI

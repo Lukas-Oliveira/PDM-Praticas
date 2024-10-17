@@ -18,16 +18,16 @@ class MainViewModel(
     private val weatherService: WeatherService
 ): ViewModel() {
 
-    private var _city = mutableStateOf<City?>(null)
-    var city: City?
+    private val _user = mutableStateOf<User?>(null)
+    val user: User?
+        get() = _user.value
+
+    private var _city = mutableStateOf<String?>(null)
+    var city: String?
         get() = _city.value
         set(tmp) {
-            _city.value = tmp?.copy()
+            _city.value = tmp
         }
-
-    private val _user = mutableStateOf(User("", ""))
-    val user: User
-        get() = _user.value
 
     private val _cities = mutableStateMapOf<String, City>()
     val cities: Map<String, City>
@@ -68,8 +68,10 @@ class MainViewModel(
     }
 
     fun loadBitmap(city: City) = viewModelScope.launch {
-        city.bitmap = weatherService.getBitmap(city.img_url!!)
-        _cities.remove(city.name)
-        _cities[city.name] = city.copy()
+
+
+            city.weather!!.bitmap = weatherService.getBitmap(city.weather!!.imgUrl)
+            _cities.remove(city.name)
+            _cities[city.name] = city.copy()
     }
 }

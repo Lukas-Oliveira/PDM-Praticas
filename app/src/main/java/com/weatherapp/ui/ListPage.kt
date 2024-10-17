@@ -3,6 +3,7 @@ package com.weatherapp.ui
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,37 +46,37 @@ fun ListPage(
     navCtrl: NavHostController,
     repository: Repository
 ) {
-    val cityList   = viewModel.cities
-    // Log.v("cityList", cityList.toString())
-    Log.v("Lista de Cidades", cityList.map { it.name }.toString())
+    val activity = LocalContext.current as? Activity
 
     LazyColumn (
         modifier = Modifier.fillMaxSize().padding(8.dp)
     ) {
-        items(cityList) { city ->
+        items(viewModel.cities.keys.toList()) { cityName ->
 
+            val city = viewModel.cities[cityName]!!
             if (city.weather == null) {
-                repository.loadWeather(city)
+                viewModel.loadWeather(city)
             }
 
             CityItem(
                 city = city,
-                onClose = { repository.remove(city) },
                 onClick = {
-                    viewModel.city = city
-                    repository.loadForecast(city)
-                    navCtrl.navigate(BottomNavItem.HomePage.route) {
-                        navCtrl.graph.startDestinationRoute?.let {
-                            popUpTo(it) { saveState = true }
-                            restoreState = true
-                        }
-                        launchSingleTop = true
-                    }
+                    viewModel.city = city.name + ""
+                    navigateTo(navCtrl, BottomNavItem.HomePage.route)
+                    Toast.makeText(activity, "Clique em ${city.name}.", Toast.LENGTH_LONG).show()
+                },
+                onClose = {
+                    Toast.makeText(activity, "Removendo ${city.name}.", Toast.LENGTH_LONG).show()
+                    repository.remove(city)
                 },
                 repository = repository
             )
         }
     }
+}
+
+fun navigateTo(navCtrl: NavHostController, route: String) {
+    navCtrl.navigate(route)
 }
 
 @Composable

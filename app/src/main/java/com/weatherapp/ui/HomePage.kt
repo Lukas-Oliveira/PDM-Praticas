@@ -1,6 +1,5 @@
 package com.weatherapp.ui
 
-import android.app.Activity
 import android.content.Context
 import android.icu.text.DecimalFormat
 import androidx.compose.foundation.clickable
@@ -19,19 +18,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.weatherapp.R
 import com.weatherapp.model.Forecast
 import com.weatherapp.repo.Repository
-import java.util.ArrayList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +36,14 @@ fun HomePage(
     context: Context,
     repository: Repository
 ) {
-    val icon = if (viewModel.city != null && viewModel.city?.isMonitored!!) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder
+    val city = if (viewModel.city != null) viewModel.cities[viewModel.city] else null
+    val isMonitored = city?.isMonitored == true
+    val icon = if (isMonitored) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder
+
+    if (city != null) {
+        if (city.weather == null)  viewModel.loadWeather(city)
+        if (city.forecast == null) viewModel.loadForecast(city)
+    }
 
     Column {
         Row {
@@ -51,12 +53,13 @@ fun HomePage(
                 modifier = Modifier
                             .size(32.dp)
                             .clickable(enabled = viewModel.city != null) {
-                                repository.update(viewModel.city!!.copy(isMonitored = !viewModel.city!!.isMonitored!!))
+                                repository.update(city!!.copy(isMonitored = !city.isMonitored))
+                                // repository.update(viewModel.city!!.copy(isMonitored = !viewModel.city!!.isMonitored!!))
                             }
             )
 
             AsyncImage(
-                model = viewModel.city?.weather?.imgUrl,
+                model = city?.weather?.imgUrl,
                 modifier = Modifier.size(100.dp),
                 error = painterResource(id = R.drawable.loading),
                 contentDescription = "Imagem"
@@ -66,25 +69,25 @@ fun HomePage(
             Column {
                 Spacer(modifier = Modifier.size(20.dp))
                 Text(
-                    text = viewModel.city?.name ?: "Selecione uma cidade...",
+                    text = city?.name ?: "Selecione uma cidade...",
                     fontSize = 24.sp
                 )
 
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
-                    text = viewModel.city?.weather?.desc ?: "...",
+                    text = city?.weather?.desc ?: "...",
                     fontSize = 20.sp
                 )
 
                 Spacer(modifier = Modifier.size(10.dp))
                 Text(
-                    text = "Temp: "+ viewModel.city?.weather?.temp + "ºC",
+                    text = "Temp: "+ city?.weather?.temp +"ºC",
                     fontSize = 20.sp
                 )
             }
         }
 
-        viewModel.city?.forecast?.let { forecasts ->
+        city?.forecast?.let { forecasts ->
             LazyColumn {
                 items(forecasts) { forecast ->
                     ForecastItem(

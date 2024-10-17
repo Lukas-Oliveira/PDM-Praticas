@@ -1,7 +1,6 @@
 package com.weatherapp.ui
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +10,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -48,22 +46,27 @@ fun MapPage(
         uiSettings = MapUiSettings(myLocationButtonEnabled = true)
     ) {
 
-        viewModel.cities.forEach {
-            city ->
+        viewModel.cities.keys.forEach() { cityName ->
+            val city = viewModel.cities[cityName]!!
+
+            if (city.location != null) {
                 var marker = BitmapDescriptorFactory.defaultMarker()
 
-                if (city.weather == null)               repository.loadWeather(city)
-                else if (city.weather!!.bitmap == null) repository.loadBitmap(city)
-                else {
-                    marker = BitmapDescriptorFactory.fromBitmap(city.weather!!.bitmap!!.scale(200, 200))
+                if (city.weather == null) {
+                    viewModel.loadWeather(city)
+                } else if (city.weather!!.bitmap == null) {
+                    viewModel.loadBitmap(city)
+                } else {
+                    marker = BitmapDescriptorFactory.fromBitmap(city.weather!!.bitmap!!.scale(120, 120))
                 }
 
                 Marker(
-                    state = MarkerState(position = city.location!!),
+                    state = MarkerState(position = city.location),
                     icon = marker,
                     title = city.name,
-                    snippet = city.weather?.desc ?: "carregando..."
+                    snippet = city.weather?.desc ?: "Carregando..."
                 )
+            }
         }
     }
 }

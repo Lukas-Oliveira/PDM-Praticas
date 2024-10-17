@@ -19,10 +19,10 @@ class WeatherApp: Application() {
     }
 
     private fun goToMain() {
-        this@WeatherApp.startActivity(Intent(this, MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP))
+        this@WeatherApp.startActivity(Intent(this, MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     private fun goToLogin() {
-        this@WeatherApp.startActivity(Intent(this, LoginActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP))
+        this@WeatherApp.startActivity(Intent(this, LoginActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 }

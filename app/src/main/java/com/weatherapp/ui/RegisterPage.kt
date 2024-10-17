@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,10 +24,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.weatherapp.db.fb.FBAuth
 import com.weatherapp.db.fb.FBDatabase
 import com.weatherapp.model.User
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -39,7 +40,11 @@ fun RegisterPage(modifier: Modifier = Modifier)
     var passwordConfirm by rememberSaveable { mutableStateOf(value = "") }
 
     var activity = LocalContext.current as? Activity
+
+    val coroutineScope = rememberCoroutineScope()
+    val firebaseAuth = remember { FBAuth() }
     val firebaseDatabase = remember { FBDatabase() }
+
 
     Column(
         modifier = Modifier.padding(20.dp),
@@ -95,23 +100,12 @@ fun RegisterPage(modifier: Modifier = Modifier)
             
             Button(
                 onClick = {
-                    Firebase.auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(activity!!) { task ->
-                            if (task.isSuccessful) {
-
-                                firebaseDatabase.register(User(username, email))
-                                Firebase.auth.signInWithEmailAndPassword(email, password)
-
-                                username = ""
-                                email = ""
-                                password = ""
-                                passwordConfirm = ""
-
-                                Toast.makeText(activity, "Cadastrado com Sucesso!",Toast.LENGTH_LONG).show()
-                            } else {
-                                Toast.makeText(activity, "O Cadastro Falhou!", Toast.LENGTH_LONG).show()
-                            }
-                        }
+                    coroutineScope.launch {
+                        val success = firebaseAuth.signUp(email, password)
+                        val msg = if (success) "Registro OK!" else "Registro FALHOU!"
+                        if (success) firebaseDatabase.register(User(username, email))
+                        Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
+                    }
                 },
                 enabled = username.isNotEmpty() &&
                           email.isNotEmpty()    &&
